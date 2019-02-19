@@ -3,6 +3,7 @@
 - article: https://dev.to/davidsbond/golang-implementing-kafka-consumers-using-sarama-cluster-4fko
 - kt: https://github.com/fgeller/kt
 - kafkacat: https://github.com/edenhill/kafkacat
+- docker ref: https://docs.confluent.io/current/installation/docker/docs/config-reference.html
 
 # prepare
 

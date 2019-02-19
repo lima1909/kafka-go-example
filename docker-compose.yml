@@ -1,0 +1,78 @@
+---
+version: '2'
+services:
+  zk1:
+    container_name: zk1
+    image: confluentinc/cp-zookeeper:5.1.1
+    ports: 
+      - "22181:22181"
+    networks:
+      svc_net:
+        ipv4_address: 172.22.0.2
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 22181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zk1:22888:23888;zk2:32888:33888
+
+  zk2:
+    container_name: zk2
+    image: confluentinc/cp-zookeeper:5.1.1
+    ports:
+      - "32181:32181"
+    networks:
+      svc_net:
+        ipv4_address: 172.22.0.3
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zk1:22888:23888;zk2:32888:33888
+
+
+  kafka-1:
+    container_name: k1
+    image: confluentinc/cp-kafka:5.1.1
+    ports:
+      - "19092:19092"
+    networks:
+      svc_net:
+        ipv4_address: 172.22.0.4
+    depends_on:
+      - zk1
+      - zk2
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 172.22.0.2:22181,172.22.0.3:32181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://172.22.0.4:19092
+      OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  kafka-2:
+    container_name: k2
+    image: confluentinc/cp-kafka:5.1.1
+    ports:
+      - "29092:29092"
+    networks:
+      svc_net:
+        ipv4_address: 172.22.0.5
+    depends_on:
+      - zk1
+      - zk2
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: 172.22.0.2:22181,172.22.0.3:32181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://172.22.0.5:29092
+      OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+
+networks:
+  svc_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16
+
